@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowUpCircle, ArrowDownCircle, RepeatIcon } from 'lucide-react'
@@ -55,7 +55,25 @@ const sampleData: FinancialSummary = {
 }
 
 export default function Dashboard() {
-  const [data] = useState<FinancialSummary>(sampleData)
+  const [data, setData] = useState<FinancialSummary>(sampleData)
+
+  useEffect(() => {
+    const loadFinancialData = async () => {
+      try {
+        const response = await fetch('/api/financial-data')
+        if (!response.ok) {
+          throw new Error('Failed to fetch financial data')
+        }
+        const financialData = await response.json()
+        setData(financialData)
+      } catch (error) {
+        console.error('Error loading financial data:', error)
+        // Keep using sample data as fallback
+      }
+    }
+
+    loadFinancialData()
+  }, [])
 
   const expenseChartData = {
     labels: Object.keys(data.expensesByCategory),
